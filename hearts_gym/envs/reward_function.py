@@ -59,6 +59,23 @@ class RewardFunction:
             # to provide.
             return 0
 
+        # If queen of spades was played
+        if card.rank == "Q" and card.suit == "S":
+            print("Queen of spades rule")
+            # Reward if the leading suit was not spades (got rid of it)
+            if self.game.leading_suit != 3:
+                print("QS-1")
+                return 100
+
+            # Reward if the king or ace of spades was in the table
+            # (got rid of it)
+            ace_or_king = any([table_card.suit == "S" and
+                               table_card.rank in ("K", "A")
+                               for table_card in self.game.prev_table_cards])
+            if ace_or_king:
+                print("QS-2")
+                return 100
+
         if trick_is_over and self.game.has_shot_the_moon(player_index):
             return self.game.max_penalty * self.game.max_num_cards_on_hand
 

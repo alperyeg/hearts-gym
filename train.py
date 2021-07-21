@@ -133,8 +133,8 @@ def main() -> None:
         restore=conf.checkpoint_path,
     )
 
+    print(' -- Start testing')
     # Testing
-
     best_cp = analysis.get_best_checkpoint(
         trial=analysis.get_best_trial(conf.opt_metric),
         metric=conf.opt_metric,

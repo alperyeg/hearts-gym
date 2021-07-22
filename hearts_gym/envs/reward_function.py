@@ -91,6 +91,8 @@ class RewardFunction:
 
         card = self.game.prev_played_cards[player_index]
 
+        card_in_hands = self.game.prev_hands[player_index]
+
         if card is None:
             # The agent did not take a turn until now; no information
             # to provide.

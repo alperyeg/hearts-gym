@@ -161,6 +161,7 @@ def main() -> None:
     )
     agent = utils.load_agent(conf.algorithm, best_cp, eval_config)
 
+    print('Running', conf.num_test_games, 'test games...')
     (
         total_penalties,
         total_placements,
@@ -181,8 +182,8 @@ def main() -> None:
           num_illegal, '/', num_actions)
     print(f'# illegal action ratio (player {LEARNED_AGENT_ID}):',
           'NaN' if num_actions == 0 else num_illegal / num_actions)
-    utils.print_results_table(
-        total_penalties, total_placements, conf.eval_policy_mapping_fn)
+    print(utils.create_results_table(
+        total_penalties, total_placements, conf.eval_policy_mapping_fn))
 
     ray.shutdown()
 

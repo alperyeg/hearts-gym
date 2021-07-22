@@ -322,9 +322,18 @@ class RewardFunction:
                                 has_lower = True
 
                 if has_higher:
-                    return -1 * len(self.game.prev_table_cards)   # Could have won with higher card, punish
+                    return -1  # Could have won with higher card, punish
                 if has_lower:
-                    return 1 * len(self.game.prev_table_cards)    # Could have won with lower card, reward
+                    return 1   # Could have won with lower card, reward
+
+                # If the trick had no penalty
+                if self.game.prev_trick_penalty == 0:
+                    if any([hand_card.rank > card.rank for hand_card in card_in_hands if
+                            hand_card.suit == self.game.leading_suit]):
+                        return -1  # If we played a low card but could have used a higher card - punish
+                    elif any([hand_card.rank < card.rank for hand_card in card_in_hands if
+                              hand_card.suit == self.game.leading_suit]):
+                        return 1  # If we played a high card but could have used a low card - reward
 
         # penalty = self.game.penalties[player_index]
 

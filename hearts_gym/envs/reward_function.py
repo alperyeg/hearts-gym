@@ -8,6 +8,43 @@ from hearts_gym.utils.typing import Reward
 from .hearts_env import HeartsEnv
 
 
+def get_card_name(card):
+    if not card:
+        return None
+
+    if card.suit == 3:
+        # Spades
+        if card.rank == 12:
+            return 'ace_spades'
+        elif card.rank == 11:
+            return 'king_spades'
+        elif card.rank == 10:
+            return 'queen_spades'
+    elif card.suit == 0:
+        # Clubs
+        if card.rank == 0:
+            return 'two_clubs'
+        elif card.rank == 12:
+            return 'ace_clubs'
+    return None
+
+
+def check_relevant_cards(cards_list):
+    cards = {
+        'ace_spades': False,
+        'king_spades': False,
+        'two_clubs': False,
+        'queen_spades': False,
+        'ace_clubs': False,
+    }
+    for card in cards_list:
+        card_name = get_card_name(card)
+        if card_name:
+            cards[card_name] = True
+
+    return cards
+
+
 class RewardFunction:
     """
     The reward function an agent optimizes to win at Hearts.
@@ -54,27 +91,38 @@ class RewardFunction:
 
         card = self.game.prev_played_cards[player_index]
 
+        card_in_hands = self.game.prev_hands[player_index]
+
         if card is None:
             # The agent did not take a turn until now; no information
             # to provide.
             return 0
 
+        # Get card name and cards in hand and table
+        card_name = get_card_name(card)
+        table_cards = check_relevant_cards(self.game.prev_table_cards)
+        in_hand = check_relevant_cards(card_in_hands)
+
+        # Check if ace or king of spades are in the table
+        ace_or_king = table_cards['ace_spades'] or table_cards['king_spades']
+
         # If queen of spades was played
-        if card.rank == "Q" and card.suit == "S":
-            print("Queen of spades rule")
+        if card_name == 'queen_spades':
             # Reward if the leading suit was not spades (got rid of it)
             if self.game.leading_suit != 3:
-                print("QS-1")
-                return 100
+                return self.game.max_penalty * 2
 
-            # Reward if the king or ace of spades was in the table
-            # (got rid of it)
-            ace_or_king = any([table_card.suit == "S" and
-                               table_card.rank in ("K", "A")
-                               for table_card in self.game.prev_table_cards])
+            # Reward if the ace or king of spades were in the table
             if ace_or_king:
-                print("QS-2")
-                return 100
+                return self.game.max_penalty * 2
+        else:
+            # Punish if the ace or king of spades were in the table or
+            # spades was not the leading suit and the player has the queen
+            # in hand
+
+            if (ace_or_king or self.game.leading_suit != 3) and \
+                    in_hand['queen_spades']:
+                return -self.game.max_penalty / 2
 
         if trick_is_over and self.game.has_shot_the_moon(player_index):
             return self.game.max_penalty * self.game.max_num_cards_on_hand

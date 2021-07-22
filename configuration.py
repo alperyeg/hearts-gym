@@ -92,7 +92,7 @@ it may sometimes even offer better support.
 
 # RLLib config
 
-algorithm = 'DQN'
+algorithm = 'PPO'
 checkpoint_path: Optional[str] = None
 """Path of a checkpoint to load. Use `None` to not load a checkpoint."""
 resume = False
@@ -109,7 +109,9 @@ env_config = {
 model_config = {
     # 'use_lstm': True,
     # 'use_attention': True,
+    'fcnet_hiddens': [512, 1024, 512, 256],
     'max_seq_len': deck_size // num_players,
+    "lstm_cell_size": 512,
     'custom_model': None,
 }
 
@@ -120,7 +122,7 @@ opt_metric: str = 'episode_reward_mean'
 opt_mode: str = 'max'
 
 stop_config = {
-    'timesteps_total': 400000,
+    'timesteps_total': 500000,
 }
 
 scheduler = tune.schedulers.FIFOScheduler()

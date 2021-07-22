@@ -283,9 +283,8 @@ class RewardFunction:
             if self.game.has_shot_the_moon(player_index):
                 return self.game.max_penalty * self.game.max_num_cards_on_hand
 
-            # If we can get rid of the ace or king of spades: do it
-
-            # If we are the last player and spades is the starting suit and we have the ace or king and the queen was not played: play the ace or king
+            # TODO: If we can get rid of the ace or king of spades: do it
+            # TODO: If we are the last player and spades is the starting suit and we have the ace or king and the queen was not played: play the ace or king
 
             # If we won the trick
             if self.game.prev_trick_winner_index == player_index:

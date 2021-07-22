@@ -260,39 +260,32 @@ class RewardFunction:
         # Check if ace or king of spades are in the table
         ace_or_king = table_cards['ace_spades'] or table_cards['king_spades']
 
-        # If queen of spades was played
-        if card_name == 'queen_spades':
-            # Reward if the leading suit was not spades (got rid of it)
-            if self.game.leading_suit != 3:
-                return self.game.max_penalty * 2
-
-            # Reward if the ace or king of spades were in the table
-            if ace_or_king:
-                return self.game.max_penalty * 2
-        else:
-            # Punish if the ace or king of spades were in the table or
-            # spades was not the leading suit and the player has the queen
-            # in hand
-
-            if (ace_or_king or self.game.leading_suit != 3) and \
-                    in_hand['queen_spades']:
-                return -self.game.max_penalty / 2
-
-        # If we player a low card on a trick with no penalty but could have used a higher card - punish
-        # If we player a high card on a trick with no penalty but could have used a lower card - reward
-
-        # If the trick had no penalty
-        if self.game.prev_trick_penalty == 0:
-            # If
-            pass
-
         if trick_is_over:
+
+            # If queen of spades was played
+            if card_name == 'queen_spades':
+                # Reward if the leading suit was not spades (got rid of it)
+                if self.game.leading_suit != 3:
+                    return self.game.max_penalty * 2
+
+                # Reward if the ace or king of spades were in the table
+                if ace_or_king:
+                    return self.game.max_penalty * 2
+            else:
+                # Punish if the ace or king of spades were in the table or
+                # spades was not the leading suit and the player has the queen
+                # in hand
+
+                if (ace_or_king or self.game.leading_suit != 3) and \
+                        in_hand['queen_spades']:
+                    return -self.game.max_penalty / 2
 
             if self.game.has_shot_the_moon(player_index):
                 return self.game.max_penalty * self.game.max_num_cards_on_hand
 
-            # # If we won a trick with card of rank x but could have won it with a card of rank y > x - punish
-            # # If we won a trick with card of rank x but could have won it with a card of rank y < x - reward
+            # If we can get rid of the ace or king of spades: do it
+
+            # If we are the last player and spades is the starting suit and we have the ace or king and the queen was not played: play the ace or king
 
             # If we won the trick
             if self.game.prev_trick_winner_index == player_index:
@@ -334,7 +327,9 @@ class RewardFunction:
                     elif any([hand_card.rank < card.rank for hand_card in card_in_hands if
                               hand_card.suit == self.game.leading_suit]):
                         return 1  # If we played a high card but could have used a low card - reward
-
+            else:  # Did not win the trick
+                if card.suit == 2:
+                    return 2  # Played a heart card - reward
         # penalty = self.game.penalties[player_index]
 
         # if self.game.is_done():

@@ -196,7 +196,7 @@ def check_relevant_cards(cards_list):
     suits['diamonds'] = any([card.suit == 1 for card in cards_list])
     suits['hearts'] = any([card.suit == 2 for card in cards_list])
     suits['spades'] = any([card.suit == 3 for card in cards_list])
-    return cards
+    return cards, suits
 
 
 class RewardFunction:
@@ -254,8 +254,8 @@ class RewardFunction:
 
         # Get card name and cards in hand and table
         card_name = get_card_name(card)
-        table_cards = check_relevant_cards(self.game.prev_table_cards)
-        in_hand = check_relevant_cards(card_in_hands)
+        table_cards, table_suits = check_relevant_cards(self.game.prev_table_cards)
+        in_hand, in_hand_suits = check_relevant_cards(card_in_hands)
 
         # Check if ace or king of spades are in the table
         ace_or_king = table_cards['ace_spades'] or table_cards['king_spades']
@@ -286,8 +286,45 @@ class RewardFunction:
             # If
             pass
 
-        if trick_is_over and self.game.has_shot_the_moon(player_index):
-            return self.game.max_penalty * self.game.max_num_cards_on_hand
+        if trick_is_over:
+
+            if self.game.has_shot_the_moon(player_index):
+                return self.game.max_penalty * self.game.max_num_cards_on_hand
+
+            # # If we won a trick with card of rank x but could have won it with a card of rank y > x - punish
+            # # If we won a trick with card of rank x but could have won it with a card of rank y < x - reward
+
+            # If we won the trick
+            if self.game.prev_trick_winner_index == player_index:
+
+                # Find highest card of the leading suit in the table
+                highest_rank = 0
+                for card_in_table in self.game.prev_table_cards:
+                    if card_in_table.suit == self.game.leading_suit:
+                        if card_in_table.rank > highest_rank:
+                            highest_rank = card_in_table.rank
+
+                # Find if we have either a lower or higher card that could have won
+                has_higher = False
+                has_lower = False
+                for card_in_hand in card_in_hands:
+                    if card.suit == card_in_hand.suit:
+
+                        # Check if we have a higher card of that suit in hand
+                        # We could have won by playing that
+                        if card_in_hand.rank > card.rank:
+                            has_higher = True
+
+                        # Check if we have a lower card of that suit in hand, that
+                        # is higher than the highest on the table
+                        elif card_in_hand.rank < card.rank:
+                            if card.rank > highest_rank:
+                                has_lower = True
+
+                if has_higher:
+                    return -1 * len(self.game.prev_table_cards)   # Could have won with higher card, punish
+                if has_lower:
+                    return 1 * len(self.game.prev_table_cards)    # Could have won with lower card, reward
 
         # penalty = self.game.penalties[player_index]
 

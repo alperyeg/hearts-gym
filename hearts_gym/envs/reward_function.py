@@ -196,7 +196,7 @@ def check_relevant_cards(cards_list):
     suits['diamonds'] = any([card.suit == 1 for card in cards_list])
     suits['hearts'] = any([card.suit == 2 for card in cards_list])
     suits['spades'] = any([card.suit == 3 for card in cards_list])
-    return cards
+    return cards, suits
 
 
 class RewardFunction:
@@ -254,8 +254,8 @@ class RewardFunction:
 
         # Get card name and cards in hand and table
         card_name = get_card_name(card)
-        table_cards = check_relevant_cards(self.game.prev_table_cards)
-        in_hand = check_relevant_cards(card_in_hands)
+        table_cards, tabel_suits = check_relevant_cards(self.game.prev_table_cards)
+        in_hand, in_hand_suits = check_relevant_cards(card_in_hands)
 
         # Check if ace or king of spades are in the table
         ace_or_king = table_cards['ace_spades'] or table_cards['king_spades']

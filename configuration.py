@@ -92,7 +92,7 @@ it may sometimes even offer better support.
 
 # RLLib config
 
-algorithm = 'PPO'
+algorithm = 'DQN'
 checkpoint_path: Optional[str] = None
 """Path of a checkpoint to load. Use `None` to not load a checkpoint."""
 resume = False

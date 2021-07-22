@@ -192,10 +192,10 @@ def check_relevant_cards(cards_list):
         card_name = get_card_name(card)
         if card_name:
             cards[card_name] = True
-    suits['clubs'] = any([card.suit == 0 for card in cards_list])
-    suits['diamonds'] = any([card.suit == 1 for card in cards_list])
-    suits['hearts'] = any([card.suit == 2 for card in cards_list])
-    suits['spades'] = any([card.suit == 3 for card in cards_list])
+    suits[0] = any([card.suit == 0 for card in cards_list])
+    suits[1] = any([card.suit == 1 for card in cards_list])
+    suits[2] = any([card.suit == 2 for card in cards_list])
+    suits[3] = any([card.suit == 3 for card in cards_list])
     return cards, suits
 
 
@@ -262,6 +262,14 @@ class RewardFunction:
 
         if trick_is_over:
 
+            if self.game.prev_trick_winner_index == player_index:
+                if table_cards['queen_spades']:
+                    return -self.game.max_penalty  # Punish if we won and the queen of spades was on the table
+
+            if self.game.prev_trick_winner_index == player_index:
+                if self.game.prev_trick_penalty > 0:
+                    return -self.game.penalties[player_index]  # Punish getting hearts, depending on how many we already have
+
             # If queen of spades was played
             if card_name == 'queen_spades':
                 # Reward if the leading suit was not spades (got rid of it)
@@ -283,8 +291,22 @@ class RewardFunction:
             if self.game.has_shot_the_moon(player_index):
                 return self.game.max_penalty * self.game.max_num_cards_on_hand
 
-            # TODO: If we can get rid of the ace or king of spades: do it
-            # TODO: If we are the last player and spades is the starting suit and we have the ace or king and the queen was not played: play the ace or king
+            # If we are the last player
+            if (self.game.prev_leading_player_index - 1) % 4 == player_index:
+                if self.game.prev_leading_suit == 3 and not table_cards['queen_spades']:
+                    if card_name in ('king_spades', 'ace_spades'):
+                        return 1  # Got rid of the king or ace - reward
+                    elif in_hand['ace_spades'] or in_hand['king_spades']:
+                        return -1  # didnt get rid of the king or ace - punish
+
+            if self.game.prev_leading_suit != 3:  # Spades is not the leading suit
+                if card_name in ('king_spades', 'ace_spades'):
+                    return 1  # Got rid of the ace or king of spades - reward
+                elif not in_hand_suits[self.game.prev_leading_suit]:  # We dont have to fllow
+                    if in_hand['ace_spades'] or in_hand['king_spades']:
+                        return -1  # Didnt get rid of the ace or king of spades - punish
+
+
 
             # If we won the trick
             if self.game.prev_trick_winner_index == player_index:

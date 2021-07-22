@@ -20,28 +20,182 @@ def get_card_name(card):
             return 'king_spades'
         elif card.rank == 10:
             return 'queen_spades'
+        elif card.rank == 9:
+            return 'jack_spades'
+        elif card.rank == 8:
+            return 'ten_spades'
+        elif card.rank == 7:
+            return 'nine_spades'
+        elif card.rank == 6:
+            return 'eight_spades'
+        elif card.rank == 5:
+            return 'seven_spades'
+        elif card.rank == 4:
+            return 'six_spades'
+        elif card.rank == 3:
+            return 'five_spades'
+        elif card.rank == 2:
+            return 'four_spades'
+        elif card.rank == 1:
+            return 'three_spades'
+        elif card.rank == 0:
+            return 'two_spades'
     elif card.suit == 0:
         # Clubs
-        if card.rank == 0:
-            return 'two_clubs'
-        elif card.rank == 12:
+        if card.rank == 12:
             return 'ace_clubs'
+        elif card.rank == 11:
+            return 'king_clubs'
+        elif card.rank == 10:
+            return 'queen_clubs'
+        elif card.rank == 9:
+            return 'jack_clubs'
+        elif card.rank == 8:
+            return 'ten_clubs'
+        elif card.rank == 7:
+            return 'nine_clubs'
+        elif card.rank == 6:
+            return 'eight_clubs'
+        elif card.rank == 5:
+            return 'seven_clubs'
+        elif card.rank == 4:
+            return 'six_clubs'
+        elif card.rank == 3:
+            return 'five_clubs'
+        elif card.rank == 2:
+            return 'four_clubs'
+        elif card.rank == 1:
+            return 'three_clubs'
+        elif card.rank == 0:
+            return 'two_clubs'
+    elif card.suit == 2:
+        # Hearts
+        if card.rank == 12:
+            return 'ace_hearts'
+        elif card.rank == 11:
+            return 'king_hearts'
+        elif card.rank == 10:
+            return 'queen_hearts'
+        elif card.rank == 9:
+            return 'jack_hearts'
+        elif card.rank == 8:
+            return 'ten_hearts'
+        elif card.rank == 7:
+            return 'nine_hearts'
+        elif card.rank == 6:
+            return 'eight_hearts'
+        elif card.rank == 5:
+            return 'seven_hearts'
+        elif card.rank == 4:
+            return 'six_hearts'
+        elif card.rank == 3:
+            return 'five_hearts'
+        elif card.rank == 2:
+            return 'four_hearts'
+        elif card.rank == 1:
+            return 'three_hearts'
+        elif card.rank == 0:
+            return 'two_hearts'
+    elif card.suit == 1:
+        # Diamond
+        if card.rank == 12:
+            return 'ace_diamond'
+        elif card.rank == 11:
+            return 'king_diamond'
+        elif card.rank == 10:
+            return 'queen_diamond'
+        elif card.rank == 9:
+            return 'jack_diamond'
+        elif card.rank == 8:
+            return 'ten_diamond'
+        elif card.rank == 7:
+            return 'nine_diamond'
+        elif card.rank == 6:
+            return 'eight_diamond'
+        elif card.rank == 5:
+            return 'seven_diamond'
+        elif card.rank == 4:
+            return 'six_diamond'
+        elif card.rank == 3:
+            return 'five_diamond'
+        elif card.rank == 2:
+            return 'four_diamond'
+        elif card.rank == 1:
+            return 'three_diamond'
+        elif card.rank == 0:
+            return 'two_diamond'
     return None
 
 
 def check_relevant_cards(cards_list):
     cards = {
-        'ace_spades': False,
-        'king_spades': False,
+        'ace_clubs': False,  # Clubs
+        'king_clubs': False,
+        'queen_clubs': False,
+        'jack_clubs': False,
+        'ten_clubs': False,
+        'nine_clubs': False,
+        'eight_clubs': False,
+        'seven_clubs': False,
+        'six_clubs': False,
+        'five_clubs': False,
+        'four_clubs': False,
+        'three_clubs': False,
         'two_clubs': False,
+        'ace_diamonds': False,  # Diamonds
+        'king_diamonds': False,
+        'queen_diamonds': False,
+        'jack_diamonds': False,
+        'ten_diamonds': False,
+        'nine_diamonds': False,
+        'eight_diamonds': False,
+        'seven_diamonds': False,
+        'six_diamonds': False,
+        'five_diamonds': False,
+        'four_diamonds': False,
+        'three_diamonds': False,
+        'two_diamonds': False,
+        'ace_hearts': False,  # Hearts
+        'king_hearts': False,
+        'queen_hearts': False,
+        'jack_hearts': False,
+        'ten_hearts': False,
+        'nine_hearts': False,
+        'eight_hearts': False,
+        'seven_hearts': False,
+        'six_hearts': False,
+        'five_hearts': False,
+        'four_hearts': False,
+        'three_hearts': False,
+        'two_hearts': False,
+        'ace_spades': False,  # Spades
+        'king_spades': False,
         'queen_spades': False,
-        'ace_clubs': False,
+        'jack_spades': False,
+        'ten_spades': False,
+        'nine_spades': False,
+        'eight_spades': False,
+        'seven_spades': False,
+        'six_spades': False,
+        'five_spades': False,
+        'four_spades': False,
+        'three_spades': False,
+        'two_spades': False,
+    }
+    suits = {
+        'clubs': False,  # 0
+        'diamonds': False,  # 1
+        'hearts': False,  # 2
+        'spades': False,  # 3
     }
     for card in cards_list:
         card_name = get_card_name(card)
         if card_name:
             cards[card_name] = True
-
+    suits['clubs'] = any([card.suit == 0 for card in cards_list])
+    suits['diamonds'] = any([card.suit == 1 for card in cards_list])
+    suits['hearts'] = any([card.suit == 2 for card in cards_list])
+    suits['spades'] = any([card.suit == 3 for card in cards_list])
     return cards
 
 
@@ -123,6 +277,14 @@ class RewardFunction:
             if (ace_or_king or self.game.leading_suit != 3) and \
                     in_hand['queen_spades']:
                 return -self.game.max_penalty / 2
+
+        # If we player a low card on a trick with no penalty but could have used a higher card - punish
+        # If we player a high card on a trick with no penalty but could have used a lower card - reward
+
+        # If the trick had no penalty
+        if self.game.prev_trick_penalty == 0:
+            # If
+            pass
 
         if trick_is_over and self.game.has_shot_the_moon(player_index):
             return self.game.max_penalty * self.game.max_num_cards_on_hand

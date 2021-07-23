@@ -192,10 +192,10 @@ def check_relevant_cards(cards_list):
         card_name = get_card_name(card)
         if card_name:
             cards[card_name] = True
-    suits[0] = any([card.suit == 0 for card in cards_list])
-    suits[1] = any([card.suit == 1 for card in cards_list])
-    suits[2] = any([card.suit == 2 for card in cards_list])
-    suits[3] = any([card.suit == 3 for card in cards_list])
+    suits[0] = sum([card.suit == 0 for card in cards_list])
+    suits[1] = sum([card.suit == 1 for card in cards_list])
+    suits[2] = sum([card.suit == 2 for card in cards_list])
+    suits[3] = sum([card.suit == 3 for card in cards_list])
     return cards, suits
 
 
@@ -240,6 +240,7 @@ class RewardFunction:
         Returns:
             Reward: Reward for the player with the given index.
         """
+        reward = 0
         if self.game.prev_was_illegals[player_index]:
             return -self.game.max_penalty * self.game.max_num_cards_on_hand
 
@@ -262,13 +263,13 @@ class RewardFunction:
 
         if trick_is_over:
             reward = 1
-            # if self.game.prev_trick_winner_index == player_index:
-            #     if table_cards['queen_spades']:
-            #         reward += -1 # -self.game.max_penalty  # Punish if we won and the queen of spades was on the table
+            if self.game.prev_trick_winner_index == player_index:
+                if table_cards['queen_spades']:
+                    reward += -1 # -self.game.max_penalty  # Punish if we won and the queen of spades was on the table
 
-            # if self.game.prev_trick_winner_index == player_index:
-            #     if self.game.prev_trick_penalty > 0:
-            #         reward += -1 # -self.game.penalties[player_index] / 2  # Punish getting hearts, depending on how many we already have
+            if self.game.prev_trick_winner_index == player_index:
+                if self.game.prev_trick_penalty > 0:
+                    reward += -1 # -self.game.penalties[player_index] / 2  # Punish getting hearts, depending on how many we already have
 
             # If queen of spades was played
             if card_name == 'queen_spades':
@@ -286,7 +287,7 @@ class RewardFunction:
 
                 if (ace_or_king or self.game.leading_suit != 3) and \
                         in_hand['queen_spades']:
-                    reward += -1 # -self.game.max_penalty / 2
+                    reward += -1  # -self.game.max_penalty / 2
 
             if self.game.has_shot_the_moon(player_index):
                 return self.game.max_penalty * self.game.max_num_cards_on_hand
@@ -302,11 +303,9 @@ class RewardFunction:
             if self.game.prev_leading_suit != 3:  # Spades is not the leading suit
                 if card_name in ('king_spades', 'ace_spades'):
                     reward += 1  # Got rid of the ace or king of spades - reward
-                elif not in_hand_suits[self.game.prev_leading_suit]:  # We dont have to fllow
+                elif in_hand_suits[self.game.prev_leading_suit] == 0:  # We dont have to fllow
                     if in_hand['ace_spades'] or in_hand['king_spades']:
                         reward += -1  # Didnt get rid of the ace or king of spades - punish
-
-
 
             # If we won the trick
             if self.game.prev_trick_winner_index == player_index:
@@ -366,5 +365,13 @@ class RewardFunction:
             reward += 1
             
             return reward
-        return 0
-        # return -penalty
+        else:
+            # If we are the first player
+            if self.game.prev_leading_player_index == player_index and len(self.game.prev_table_cards) == 1:
+                # Didnt open with a high card - reward
+                if card.rank < 11:
+                    reward += 11 - card.rank
+                    if card.suit == 2:
+                        # especially if it is a heart
+                        reward *= 2
+            return reward

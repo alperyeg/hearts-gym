@@ -262,13 +262,13 @@ class RewardFunction:
 
         if trick_is_over:
             reward = 1
-            if self.game.prev_trick_winner_index == player_index:
-                if table_cards['queen_spades']:
-                    reward += -1 # -self.game.max_penalty  # Punish if we won and the queen of spades was on the table
+            # if self.game.prev_trick_winner_index == player_index:
+            #     if table_cards['queen_spades']:
+            #         reward += -1 # -self.game.max_penalty  # Punish if we won and the queen of spades was on the table
 
-            if self.game.prev_trick_winner_index == player_index:
-                if self.game.prev_trick_penalty > 0:
-                    reward += -1 # -self.game.penalties[player_index] / 2  # Punish getting hearts, depending on how many we already have
+            # if self.game.prev_trick_winner_index == player_index:
+            #     if self.game.prev_trick_penalty > 0:
+            #         reward += -1 # -self.game.penalties[player_index] / 2  # Punish getting hearts, depending on how many we already have
 
             # If queen of spades was played
             if card_name == 'queen_spades':
@@ -350,6 +350,8 @@ class RewardFunction:
                         reward += 1  # If we played a high card but could have used a low card - reward
             else:  # Did not win the trick
                 if card.suit == 2:
+                    # TODO: punish if it was not the highest possible
+                    # and reward if it was the highest possible
                     reward += 2  # Played a heart card - reward
         # penalty = self.game.penalties[player_index]
 
@@ -361,7 +363,7 @@ class RewardFunction:
                 else:
                     assert self.game.prev_trick_penalty is not None
                     reward += -self.game.prev_trick_penalty
-            reward +=  1
+            reward += 1
             
             return reward
         return 0

@@ -262,14 +262,14 @@ class RewardFunction:
         ace_or_king = table_cards['ace_spades'] or table_cards['king_spades']
 
         if trick_is_over:
-            reward = 1
+            reward = 0
             if self.game.prev_trick_winner_index == player_index:
                 if table_cards['queen_spades']:
-                    reward += -1 # -self.game.max_penalty  # Punish if we won and the queen of spades was on the table
+                    reward += -1  # -self.game.max_penalty  # Punish if we won and the queen of spades was on the table
 
             if self.game.prev_trick_winner_index == player_index:
                 if self.game.prev_trick_penalty > 0:
-                    reward += -1 # -self.game.penalties[player_index] / 2  # Punish getting hearts, depending on how many we already have
+                    reward += -1  # -self.game.penalties[player_index] / 2  # Punish getting hearts, depending on how many we already have
 
             # If queen of spades was played
             if card_name == 'queen_spades':
@@ -348,6 +348,7 @@ class RewardFunction:
                               hand_card.suit == self.game.leading_suit]):
                         reward += 1  # If we played a high card but could have used a low card - reward
             else:  # Did not win the trick
+                reward += 2
                 leading_suit_table_cards = [other_card.rank
                                             for other_card in self.game.prev_table_cards
                                             if other_card.suit == self.game.prev_leading_suit]
@@ -367,7 +368,7 @@ class RewardFunction:
 
                 if card.suit == 2:
                     # especially if it is a heart
-                    reward *= 2
+                    reward -= 2
 
             if self.game.prev_trick_winner_index == player_index:
                 if self.game.prev_trick_penalty == 0:
@@ -375,8 +376,6 @@ class RewardFunction:
                 else:
                     assert self.game.prev_trick_penalty is not None
                     reward += -self.game.prev_trick_penalty
-            reward += 1
-            
             return reward
         else:
             # If we are the first player
@@ -386,5 +385,5 @@ class RewardFunction:
                     reward += 11 - card.rank
                     if card.suit == 2:
                         # especially if it is a heart
-                        reward *= 2
+                        reward -= 2
             return reward

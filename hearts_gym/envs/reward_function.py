@@ -348,17 +348,30 @@ class RewardFunction:
                               hand_card.suit == self.game.leading_suit]):
                         reward += 1  # If we played a high card but could have used a low card - reward
             else:  # Did not win the trick
-                if card.suit == 2:
-                    # TODO: punish if it was not the highest possible
-                    # and reward if it was the highest possible
-                    reward += 2  # Played a heart card - reward
-        # penalty = self.game.penalties[player_index]
+                leading_suit_table_cards = [other_card.rank
+                                            for other_card in self.game.prev_table_cards
+                                            if other_card.suit == self.game.prev_leading_suit]
+                winning_rank = max(leading_suit_table_cards)
 
-        # if self.game.is_done():
-        #     return -penalty
+                leading_suit_hand_cards = [other_card.rank
+                                           for other_card in card_in_hands
+                                           if other_card.suit == self.game.prev_leading_suit
+                                           and other_card.rank < winning_rank]
+
+                if len(leading_suit_hand_cards) > 0:
+                    highest_rank_in_hand = max(leading_suit_hand_cards)
+                    if highest_rank_in_hand > card.rank:
+                        reward -= 1  # If we could have played a higher ranking card but didnt - punish
+                    elif highest_rank_in_hand <= card.rank:
+                        reward += 1  # If we couldnt have played a higher ranking card but didnt - reward
+
+                if card.suit == 2:
+                    # especially if it is a heart
+                    reward *= 2
+
             if self.game.prev_trick_winner_index == player_index:
                 if self.game.prev_trick_penalty == 0:
-                    reward += self.game.max_penalty # 5
+                    reward += self.game.max_penalty  # 5
                 else:
                     assert self.game.prev_trick_penalty is not None
                     reward += -self.game.prev_trick_penalty
